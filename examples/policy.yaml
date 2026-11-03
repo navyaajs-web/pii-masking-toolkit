@@ -1,0 +1,16 @@
+# Example policy for the synthetic customer table.
+# Secrets are referenced by environment variable name only; values never live in this file.
+version: 1
+name: customer_profile_v1
+secrets:
+  hash_salt_env: PII_HASH_SALT
+  token_key_env: PII_TOKEN_KEY
+columns:
+  ssn:           { rule: hash }        # never needed back; joins on the hash still work
+  email:         { rule: tokenise }    # deterministic, re-identifiable via the vault
+  card_number:   { rule: mask, keep_last: 4 }
+  phone:         { rule: mask, keep_last: 4 }
+  first_name:    { rule: tokenise, vault: false }
+  last_name:     { rule: tokenise, vault: false }
+  notes:         nullify               # shorthand form
+  date_of_birth: { rule: encrypt }     # reversible by key holders only
